@@ -12,6 +12,3 @@ def run(file_path):
     p = Parser(sql, True)
     p.parse()
     print("output\n", p.output["values"])
-
-
-run("input.sql")

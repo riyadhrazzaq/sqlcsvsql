@@ -4,18 +4,23 @@ config = {}
 output = {}
 
 
-def run(table_name, file_name):
+def run(table_name, file_name, is_multiline=False):
     config["table"] = table_name
-    config["file_name"] = file_name
+
+    table = pd.read_csv(file_name)
+    config["columns"] = list(table.columns.values)
+    config["is_multiline"] = is_multiline
+    output[config["table"]] = {
+        "values": [],
+        "insert_into": ""
+    }
+    write_to_sql(file_name+".sql", prepare_sql(table))
 
 
-table = pd.read_csv(config["file_name"])
-config["columns"] = list(table.columns.values)
-config["single_insert"] = True
-output[config["table"]] = {
-    "values": [],
-    "insert_into": ""
-}
+def write_to_sql(file_name, content):
+    print(output[config["table"]]["values"])
+    with open(file_name, 'w') as f:
+        f.write(content)
 
 
 def prepare_insert_header_statement(table, cols):
@@ -33,21 +38,20 @@ def prepare_values(line):
     converts line in a csv to sql
     """
     table_name = config["table"]
-    cols = config['columns']
     values = list(line)
     statement = prepare_statement(values)
     output[table_name]["values"].append(statement)
 
 
-def prepare_sql():
+def prepare_sql(table):
     sql = ""
     table.apply(prepare_values, axis=1)
     insert_statement = prepare_insert_header_statement(config["table"], config["columns"])
-    if not config["single_insert"]:
+    if not config["is_multiline"]:
         sql = ", ".join(output[config["table"]]["values"])
-        sql = insert_statement + " " + sql
+        sql = insert_statement + " " + sql + ";"
         return sql
 
     for v in output[config["table"]]["values"]:
-        sql = sql + "\n" + insert_statement + " " + v
+        sql = sql + "\n" + insert_statement + " " + v + ";"
     return sql
