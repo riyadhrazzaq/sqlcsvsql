@@ -38,8 +38,19 @@ def get_table_name(sql: str, multiple_stmt=False):
 
 
 def get_values_starting_pos(sql: str):
+    """
+    finds the position of values starting in a single statement.
+
+    Example
+    -------
+    for sql `INSERT INTO ABC(id,name) VALUES (1,'a'),(2,'c');`
+    the method will return the idx of whitespace after `VALUES` keyword.
+
+    :param sql
+    :return: list of int
+    """
     positions = []
-    expression = re.compile(reg_exp.values_starting_position, re.IGNORECASE)
+    expression = re.compile(reg_exp.values_starting_position, re.IGNORECASE | re.MULTILINE)
     iteration = expression.finditer(sql)
     if iteration is None:
         print("ERR! no values here")
@@ -120,8 +131,8 @@ def get_all_insert_stmt(sql: str):
 
     positions.insert(0, 0)
     positions.append(len(sql))
-    for idx in range(0, len(positions)-1):
-        stmts.append(sql[positions[idx]:positions[idx+1]].strip())
+    for idx in range(0, len(positions) - 1):
+        stmts.append(sql[positions[idx]:positions[idx + 1]].strip())
     return stmts
 
 
