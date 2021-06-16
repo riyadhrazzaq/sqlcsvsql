@@ -10,16 +10,13 @@ def run(table_name, file_name, is_multiline=False):
     table = pd.read_csv(file_name)
     config["columns"] = list(table.columns.values)
     config["is_multiline"] = is_multiline
-    output[config["table"]] = {
-        "values": [],
-        "insert_into": ""
-    }
-    write_to_sql(file_name+".sql", prepare_sql(table))
+    output[config["table"]] = {"values": [], "insert_into": ""}
+    write_to_sql(file_name + ".sql", prepare_sql(table))
 
 
 def write_to_sql(file_name, content):
     print(output[config["table"]]["values"])
-    with open(file_name, 'w') as f:
+    with open(file_name, "w") as f:
         f.write(content)
 
 
@@ -46,7 +43,9 @@ def prepare_values(line):
 def prepare_sql(table):
     sql = ""
     table.apply(prepare_values, axis=1)
-    insert_statement = prepare_insert_header_statement(config["table"], config["columns"])
+    insert_statement = prepare_insert_header_statement(
+        config["table"], config["columns"]
+    )
     if not config["is_multiline"]:
         sql = ", ".join(output[config["table"]]["values"])
         sql = insert_statement + " " + sql + ";"
@@ -54,4 +53,5 @@ def prepare_sql(table):
 
     for v in output[config["table"]]["values"]:
         sql = sql + "\n" + insert_statement + " " + v + ";"
+    print(sql)
     return sql

@@ -1,4 +1,5 @@
 import re
+import csv
 
 from . import reg_exp
 
@@ -12,8 +13,10 @@ class Parser:
 
     def parse(self):
         self.output["table_name"] = get_table_name(self.sql)
+        self.output["column_names"] = get_column_names(self.sql)
         all_insert_statements = get_all_insert_stmt(self.sql)
         self.output["statements"] = all_insert_statements
+
         for statement in all_insert_statements:
             starting_positions = get_values_starting_pos(statement)
             for pos in starting_positions:
@@ -22,8 +25,12 @@ class Parser:
                 print(self.output["values"])
         return
 
-    def to_csv(self):
-        pass
+    def to_csv(self, filename):
+        with open(filename, "w") as csvfile:
+            writer = csv.writer(csvfile, quoting=csv.QUOTE_NONNUMERIC)
+            writer.writerow(self.output["column_names"])
+            for values in self.output["values"]:
+                writer.writerow(values)
 
 
 def get_table_name(sql: str, multiple_stmt=False):
@@ -50,7 +57,9 @@ def get_values_starting_pos(sql: str):
     :return: list of int
     """
     positions = []
-    expression = re.compile(reg_exp.values_starting_position, re.IGNORECASE | re.MULTILINE)
+    expression = re.compile(
+        reg_exp.values_starting_position, re.IGNORECASE | re.MULTILINE
+    )
     iteration = expression.finditer(sql)
     if iteration is None:
         print("ERR! no values here")
@@ -98,7 +107,6 @@ def parse_multiple_value_statement(sql: str):
         if c == reg_exp.single_quote:
             if last_item(brackets) == reg_exp.single_quote:
                 brackets.pop()
-                current_substr += reg_exp.single_quote
             else:
                 brackets.append(reg_exp.single_quote)
             continue
@@ -132,11 +140,20 @@ def get_all_insert_stmt(sql: str):
     positions.insert(0, 0)
     positions.append(len(sql))
     for idx in range(0, len(positions) - 1):
-        stmts.append(sql[positions[idx]:positions[idx + 1]].strip())
+        stmts.append(sql[positions[idx] : positions[idx + 1]].strip())
     return stmts
+
+
+def get_column_names(sql: str):
+    p = re.compile(reg_exp.column_names, re.IGNORECASE)
+    m = p.findall(sql)
+    if len(m) == 0:
+        return None
+    m = m[0][1:-1]
+    return [col.strip() for col in m.split(",")]
 
 
 def last_item(arr):
     if len(arr) > 0:
         return arr[-1]
-    return ''
+    return ""
