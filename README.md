@@ -2,7 +2,7 @@
 A Simple Command Line Utility for converting SQL statements to CSV and vice versa.
 
 # Installation
-`pip install `
+`pip install sqlcsvsql`
 
 # Usage
 ```
