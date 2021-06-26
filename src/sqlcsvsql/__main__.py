@@ -1,8 +1,8 @@
 import re
 import argparse
 
-from . import sql_to_csv
-from . import csv_to_sql
+import sql_to_csv
+import csv_to_sql
 
 
 REGEX_CSV = r".csv$"

@@ -1,7 +1,7 @@
 import re
 import csv
 
-from . import reg_exp
+import reg_exp
 
 
 class Parser:

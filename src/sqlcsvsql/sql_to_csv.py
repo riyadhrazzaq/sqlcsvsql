@@ -1,5 +1,4 @@
-from sql_parser.parsers import Parser
-import sql_parser.parsers as sp
+from sqlcsvsql.sql_parser import Parser
 
 
 def run(file_path):
