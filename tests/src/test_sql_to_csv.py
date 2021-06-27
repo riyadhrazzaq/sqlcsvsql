@@ -2,13 +2,12 @@ import unittest
 import csv
 import io
 
-import src.sqlcsvsql.sql_to_csv as s2c
+import sqlcsvsql.converters.sql_to_csv as s2c
 
 CSV = ".csv"
 
 
 class TestSQLToCSV(unittest.TestCase):
-
     def simple_sql(self):
         input_filepath = "tests/resources/input.sql"
         s2c.run(input_filepath)
@@ -33,5 +32,3 @@ class TestSQLToCSV(unittest.TestCase):
                 actual_csv_lines.append(obj)
 
         self.assertDictEqual(expected_csv_dicts[0], actual_csv_lines[0])
-
-

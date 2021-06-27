@@ -1,10 +1,11 @@
-import csv
+import csv, sys, logging
 
 config = {}
 output = {}
+logger = logging.getLogger(__name__)
 
 
-def run(table_name, file_name, is_multiline=False):
+def run(table_name, file_name, is_multiline=False, output_file=None, surround=None):
     """
     driver method.
 
@@ -16,18 +17,44 @@ def run(table_name, file_name, is_multiline=False):
         input csv file
     is_multiline: bool
         whether to generate multiple insert statements or single one.
+    output_file: str
+        output filepath with extension
 
     Returns
     -------
     Nothing. Saves the file on disk
     """
+    if output_file is None:
+        output_file = file_name + ".sql"
     config["table"] = table_name
 
     table = read_csv(file_name)
     config["columns"] = list(table[0].keys())
     config["is_multiline"] = is_multiline
     output[config["table"]] = {"values": [], "insert_into": ""}
-    write_to_sql(file_name + ".sql", prepare_sql(table))
+    setup_quote_chars(surround)
+    write_to_sql(output_file, prepare_sql(table))
+
+
+def setup_quote_chars(surround):
+    config["quote"] = {}
+    if surround is not None:
+        surrounds = surround.split(",")
+        if len(surrounds) != len(config["columns"]):
+            logger.error(
+                "surround parameter(s) %s does not match columns %s",
+                len(surrounds),
+                len(config["columns"]),
+            )
+            sys.exit(0)
+
+        for idx, s in enumerate(surrounds):
+            config["quote"][config["columns"][idx]] = "'"
+            if s == "n":
+                config["quote"][config["columns"][idx]] = ""
+    else:
+        for col in config["columns"]:
+            config["quote"][col] = "'"
 
 
 def read_csv(file_name):
@@ -57,8 +84,15 @@ def prepare_insert_header_statement(table, cols):
     return f"INSERT INTO {table} {cols_sql} VALUES"
 
 
+def format_value(value, quote):
+    if value == "null":
+        return value
+    return quote + str(value) + quote
+
+
 def prepare_statement(values):
-    values_sql = f"({', '.join([str(v) for v in values])})"
+    values_sql = f"""({', '
+        .join([format_value(v, config['quote'][config['columns'][i]]) for i, v in enumerate(values)])})"""
     return values_sql
 
 

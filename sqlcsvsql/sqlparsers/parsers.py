@@ -1,7 +1,10 @@
 import re
 import csv
+import logging
 
-import reg_exp
+from sqlcsvsql.sqlparsers import reg_exp
+
+logger = logging.getLogger(__name__)
 
 
 class Parser:
@@ -22,14 +25,14 @@ class Parser:
             for pos in starting_positions:
                 partial_sql = statement[pos:]
                 self.output["values"] += parse_multiple_value_statement(partial_sql)
-                print(self.output["values"])
         return
 
     def to_csv(self, filename):
-        with open(filename, "w") as csvfile:
+        with open(filename, "w", encoding="utf-8") as csvfile:
             writer = csv.writer(csvfile, quoting=csv.QUOTE_NONNUMERIC)
             writer.writerow(self.output["column_names"])
             for values in self.output["values"]:
+                # values = (v.encode("utf-8") for v in values)
                 writer.writerow(values)
 
 
@@ -40,7 +43,7 @@ def get_table_name(sql: str, multiple_stmt=False):
     expression = re.compile(reg_exp.table_name, re.IGNORECASE)
     names = expression.findall(sql)
     if len(names) == 0:
-        print("ERR! no table found")
+        logger.error("no table name found")
     return names[0]
 
 
@@ -62,7 +65,7 @@ def get_values_starting_pos(sql: str):
     )
     iteration = expression.finditer(sql)
     if iteration is None:
-        print("ERR! no values here")
+        logger.error("no values here")
     for match in iteration:
         positions.append(match.end())
     return positions

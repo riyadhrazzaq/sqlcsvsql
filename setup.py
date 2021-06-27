@@ -5,24 +5,23 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="sqlcsvsql",
-    version="0.0.1",
+    version="0.0.2",
     author="Md. Abdur Razzaq Riyadh",
     author_email="riyadh.razzaq@gmail.com",
-    description="a lightweight package to convert sql files to csv and vice versa",
+    description="a lightweight package to convert files between sql and csv",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/riyadhrazzaq/sqlcsvsql.git",
+    url="https://github.com/riyadhrazzaq/sqlcsvsql",
     project_urls={
-        "Bug Tracker": "https://github.com/riyadhrazzaq/sqlcsvsql.git/issues",
+        "Bug Tracker": "https://github.com/riyadhrazzaq/sqlcsvsql/issues",
     },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": "src"},
-    packages=setuptools.find_packages(where="src"),
+    package_dir={"": "."},
+    packages=setuptools.find_packages(where="."),
     python_requires=">=3.6",
     entry_points={"console_scripts": ["sqlcsvsql = sqlcsvsql.__main__:main"]},
-    install_requires=["pandas"],
 )
