@@ -1,4 +1,6 @@
-import csv, sys, logging
+import csv
+import logging
+import sys
 
 config = {}
 output = {}
@@ -19,6 +21,8 @@ def run(table_name, file_name, is_multiline=False, output_file=None, surround=No
         whether to generate multiple insert statements or single one.
     output_file: str
         output filepath with extension
+    surround: str
+        quotation flags for VALUES (...) in generated sql
 
     Returns
     -------
@@ -80,11 +84,19 @@ def write_to_sql(file_name, content):
 
 
 def prepare_insert_header_statement(table, cols):
+    """
+    Returns first-half of INSERT DML, i.e `INSERT INTO TABLE (COLUMN...) VALUES`
+    """
     cols_sql = f"({', '.join([c.strip() for c in cols])})"
     return f"INSERT INTO {table} {cols_sql} VALUES"
 
 
 def format_value(value, quote):
+    """
+    decides the following for each values
+        - null or not
+        - use quotation or not
+    """
     if value == "null":
         return value
     return quote + str(value) + quote
