@@ -1,11 +1,14 @@
 import unittest
+import os
 
 import sqlcsvsql.converters.csv_to_sql as c2s
 from tests.src.hasher import Type, hash
 
-CSV_PATH = "../resources/csv"
-OUTPUT_PATH = "../outputs/actual"
-EXP_PATH = "../outputs/expected"
+print(os.getcwd())
+
+CSV_PATH = "tests/resources/csv"
+OUTPUT_PATH = "tests/outputs/actual"
+EXP_PATH = "tests/outputs/expected"
 
 
 class TestCSVToSQL(unittest.TestCase):
