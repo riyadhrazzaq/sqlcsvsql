@@ -1,6 +1,9 @@
-name: Unittest
+name: python unittest
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
